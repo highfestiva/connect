@@ -294,8 +294,8 @@ static char *usage = "usage: %s [-dnhst45] [-p local-port]"
 /* help message for UNIX */
 "[-R resolve] [-w timeout] \n"
 #endif /* not _WIN32 */
-"          [-H proxy-server[:port]] [-S [user@]socks-server[:port]] \n"
-"          [-T proxy-server[:port]]\n"
+"          [-H [user[:pass]@]proxy-server[:port]] [-S [user[:pass]@]socks-server[:port]] \n"
+"          [-T [user[:pass]@]proxy-server[:port]]\n"
 "          [-c telnet-proxy-command]\n"
 "          host port\n";
 
@@ -344,6 +344,7 @@ int   relay_method = METHOD_UNDECIDED;          /* relaying method */
 char *relay_host = NULL;                        /* hostname of relay server */
 u_short relay_port = 0;                         /* port of relay server */
 char *relay_user = NULL;                        /* user name for auth */
+char *relay_pass = NULL;
 
 /* destination target host and port */
 char *dest_host = NULL;
@@ -1357,6 +1358,7 @@ determine_relay_user ()
 char *
 determine_relay_password ()
 {
+	char* sep;
     char *pass = NULL;
     if (pass == NULL && relay_method == METHOD_HTTP)
         pass = getparam(ENV_HTTP_PROXY_PASSWORD);
@@ -1366,7 +1368,9 @@ determine_relay_password ()
         pass = getparam(ENV_SOCKS5_PASSWORD);
     if (pass == NULL)
         pass = getparam(ENV_CONNECT_PASSWORD);
-    return pass;
+	if (pass == NULL)
+		pass = relay_pass;
+	return pass;
 }
 
 
@@ -1477,6 +1481,14 @@ set_relay( int method, char *spec )
     }
     if (relay_user == NULL)
         relay_user = determine_relay_user();
+	{
+		// Jonas Byström 2017-08-22: pick password from pass part of "user:pass@host:port"
+		sep = strrchr(relay_user, ':');
+		if (sep != NULL) {
+			*sep = '\0';
+			relay_pass = sep + 1;
+		}
+	}
 
     /* split out hostname and port number from spec */
     sep = strchr(spec,':');

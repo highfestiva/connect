@@ -9,9 +9,15 @@ somewhere on your path (I use git-bash's ~/bin/).
 $ connect
 connect --- simple relaying command via proxy.
 Version 1.105
-usage: C:\Users\user\bin\connect.exe [-dnhst45] [-p local-port]
-          [-H proxy-server[:port]] [-S [user@]socks-server[:port]]
-          [-T proxy-server[:port]]
+usage: C:\Program Files\Git\usr\bin\connect.exe [-dnhst45] [-p local-port]
+          [-H [user[:pass]@]proxy-server[:port]] [-S [user[:pass]@]socks-server[:port]]
+          [-T [user[:pass]@]proxy-server[:port]]
           [-c telnet-proxy-command]
           host port
+```
+
+Also added the common function to be able to pass password on command line:
+
+```bash
+$ connect -H user:pass@host:port someserver.com 12345
 ```
